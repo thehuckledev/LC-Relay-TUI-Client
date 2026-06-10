@@ -10,5 +10,5 @@ LC Relay gives you a multiplayer room system for PC-LCE. This was originally ins
 
 <h2>If you want LC Launcher itself</h2>
 <p>
-If you want to contribute or download the launcher you must visit <a href="https://lcelauncher.com">lcelauncher.com</a>. The git repo will be on our website if you need it.
+If you want to contribute or download the launcher you must visit <a href="https://lce-launcher.com">lce-launcher.com</a>. The git repo will be on our website if you need it.
 </p>
