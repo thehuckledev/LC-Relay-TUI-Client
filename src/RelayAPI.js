@@ -34,6 +34,7 @@ class RelayAPI {
             };
 
             this.socket = io(wsBase, {
+                transports: ["websocket"],
                 auth: { token: this.token },
                 reconnection: false
             });
