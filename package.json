@@ -1,0 +1,11 @@
+{
+  "name": "standalone-lcrelay-client",
+  "type": "commonjs",
+  "scripts": {
+    "dist": "esbuild src/index.js --bundle --minify --platform=node --format=cjs --banner:js=\"// LC Relay - A multiplayer room system for PC-LCE\n// LC Relay was originally inside LC Launcher (https://lce-launcher.com)\n\n// Under GNU GENERAL PUBLIC LICENSE V3\n// Copyright 2026 TheHuckle. All rights reserved.\n\" --outfile=dist/lc-relay.js"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.0",
+    "socket.io-client": "^4.8.3"
+  }
+}
