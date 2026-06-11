@@ -12,7 +12,7 @@ class Rendering {
             signup: [["↑/↓", "Move"], ["↲", "Submit"], ["Tab", "Go Login"], ["Esc", "Exit"]],
             home: [["↑/↓", "Move"], ["↲", "Select"], ["Esc", "Exit"]],
             offline: [["↑/↓", "Move"], ["↲", "Select"], ["Esc", "Exit"]],
-            join: [["↲", "Join"], ["Esc", "Back"]],
+            join: [["↲", "Join"], ["^C", "Paste"], ["Esc", "Back"]],
             create: [["↑/↓", "Move"], ["←/→", "Change Value"], ["↲", "Edit/Select"], ["Esc", "Back"]],
             room: [["↑/↓", "Move"], ["Del", "Kick"], ["Esc", "Leave Room"]],
             about: [["d", "Discord"], ["g", "GitHub"], ["w", "Website"], ["Esc", "Back"]],
