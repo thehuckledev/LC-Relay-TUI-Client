@@ -1,5 +1,6 @@
 const RelayAPI = require("../RelayAPI");
 const colours = require("../utils/colours");
+const { relayPort } = require("../utils/config");
 const Utils = require("./utils");
 
 class Rendering {
