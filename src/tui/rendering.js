@@ -22,7 +22,7 @@ class Rendering {
     showMessage(message, nextMenu, delay = 2000) {
         if (this.messageTimeout) clearTimeout(this.messageTimeout);
 
-        this.screenMsg = message;
+        this.tui.screenMsg = message;
         this.tui.menu = "message";
         this.render();
 
@@ -102,7 +102,7 @@ class Rendering {
         let titleText = this.tui.menu === "login" ? "Account Login" : "Account Signup";
         let ui = `${colours.fg.gray}${colours.bright}   ${titleText}:${colours.reset}\n\n${colours.fg.gray}   Fields can only contain letters and numbers${colours.reset}\n\n`;
 
-        this.authFields.forEach((f, i) => {
+        this.tui.authFields.forEach((f, i) => {
             const isFocused = this.tui.focusIndex === i;
             const style = isFocused ? `${colours.bg.blue}${colours.fg.black}` : `${colours.fg.blue}`;
 
