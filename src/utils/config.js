@@ -1,5 +1,5 @@
 let serverSecure = true;
-let serverBase = "lc-relay-test.huckle.dev";
+let serverBase = "lc-relay.neolegacy.dev";
 let relayPort = 61000; // do not use 25565 as if someone has 2 clients open they cant start local world
 let hostRelayPort = 25565;
 
