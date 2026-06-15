@@ -7,6 +7,7 @@ const Utils = require("./utils");
 class TUI {
     constructor() {
         this.r = new Rendering(this);
+        VLANRelay.r = this.r;
 
         this.state = {
             inRoom: false,
@@ -41,7 +42,7 @@ class TUI {
         process.stdin.setRawMode(true);
         process.stdin.resume();
         process.stdin.on('data', this.handleInput.bind(this));
-        process.stdout.on('resize', this.r.render.bind(this));
+        process.stdout.on('resize', this.r.render.bind(this.r));
         
         process.on('SIGINT', async () => await this.exit());
         process.on('SIGTERM', async () => await this.exit());
@@ -79,6 +80,8 @@ class TUI {
     async exit() {
         if (this.isExiting) return;
         this.isExiting = true;
+
+        if (this.messageTimeout) clearTimeout(this.messageTimeout);
 
         this.r.clearScreen();
         const showCursor = "\u001B[?25h";
@@ -286,9 +289,13 @@ class TUI {
                 const target = this.focusIndex - playersPerChunk;
                 if (target >= 0) this.focusIndex = target;
             }
-            if (char === '\x7f' || char === 'k') { // del
+            if (char === '\x7f' || char === 'k') { // k
                 const targetPlayer = this.state.players[this.focusIndex];
                 if (!targetPlayer.isMe) this.kickPlayer(targetPlayer.id);
+            };
+            if (char === 'b') { // b
+                const targetPlayer = this.state.players[this.focusIndex];
+                if (!targetPlayer.isMe) this.banPlayer(targetPlayer.id);
             };
         };
 
@@ -416,6 +423,19 @@ class TUI {
         };
     };
 
+    async banPlayer(playerID) {
+        this.r.showMessage("Banning Player...");
+
+        const response = await RelayAPI.banPlayer(this.roomCode, playerID);
+        if (response.success) {
+            this.state.players = this.state.players.filter(p => p.id !== playerID);
+            this.menu = "room";
+            this.r.render();
+        } else {
+            this.r.showMessage(response.message || "Failed to ban player", "room", 1000);
+        };
+    };
+
     async leaveRoom() {
         this.r.showMessage("Leaving the room...");
 
@@ -445,6 +465,8 @@ class TUI {
         this.r.showMessage("Connecting to LC Relay...");
 
         setTimeout(async () => {
+            if (this.isExiting) return;
+            
             this.screenMsg = "";
             this.init();
         }, 1000);

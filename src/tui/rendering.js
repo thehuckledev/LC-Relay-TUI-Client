@@ -1,6 +1,7 @@
 const RelayAPI = require("../RelayAPI");
 const colours = require("../utils/colours");
 const { relayPort } = require("../utils/config");
+const VLANRelay = require("../VLANRelay");
 const Utils = require("./utils");
 
 class Rendering {
@@ -14,7 +15,7 @@ class Rendering {
             offline: [["↑/↓", "Move"], ["↲", "Select"], ["Esc", "Exit"]],
             join: [["↲", "Join"], ["^C", "Paste"], ["Esc", "Back"]],
             create: [["↑/↓", "Move"], ["←/→", "Change Value"], ["↲", "Edit/Select"], ["Esc", "Back"]],
-            room: [["↑/↓", "Move"], ["Del", "Kick"], ["Esc", "Leave Room"]],
+            room: [["↑/↓", "Move"], ["k", "Kick"], ["b", "Ban"], ["Esc", "Leave Room"]],
             about: [["d", "Discord"], ["g", "GitHub"], ["w", "Website"], ["Esc", "Back"]],
             message: []
         };
@@ -253,8 +254,15 @@ class Rendering {
                             this.tui.roomCode.slice(3, 6);
         
         let relayHint = this.tui.state.players.find(p => p.isHost)?.isMe ?
-                        `Start hosting your world to allow players to join` :
-                        `Join 127.0.0.1:${relayPort} inside your game`;
+                        (
+                            VLANRelay.isHostReady ?
+                            `Players will now be able to join your world` :
+                            `Start hosting your world to allow players to join`
+                        ) : (
+                            VLANRelay.isHostReady ?
+                            `Join 127.0.0.1:${relayPort} inside your game` :
+                            `Waiting for host to load a world...`
+                        );
 
         let ui = `   Room Code: ${colours.fg.blue}${codeRender}${colours.reset}\n` +
                  `   Players: ${colours.fg.blue}${playerCount}${colours.reset} ${colours.fg.gray}/ ${colours.bright}${maxCount}${colours.reset}\n` +

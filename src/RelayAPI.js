@@ -83,12 +83,28 @@ class RelayAPI {
             this.socket.on("relay_packet", (data) => {
                 this.eventEmitter.emit("relay_packet", data);
             });
+
+            this.socket.on("relay_ready", (isReady) => {
+                this.eventEmitter.emit("relay_ready", isReady);
+            });
         });
     };
 
     static async exit(roomCode) {
         if (this.user) await this.leaveRoom(roomCode).catch(e=>{});
         if (this.socket) this.socket.disconnect();
+    };
+
+    static getConnectionReady(isReady) {
+        if (!this.socket || !this.socket.connected) return false;
+        this.socket.emit("relay_get_ready", isReady);
+        return true;
+    };
+
+    static setConnectionReady(isReady) {
+        if (!this.socket || !this.socket.connected) return false;
+        this.socket.emit("relay_ready", isReady);
+        return true;
     };
 
     static openConnection() {
@@ -252,6 +268,19 @@ class RelayAPI {
     static async kickPlayer(code, targetID) {
         try {
             const res = await fetch(`${apiBase}/rooms/kick`, {
+                method: "POST",
+                headers: this.getHeaders(),
+                body: JSON.stringify({ code, targetID })
+            });
+            return await res.json();
+        } catch {
+            return { success: false };
+        };
+    };
+
+    static async banPlayer(code, targetID) {
+        try {
+            const res = await fetch(`${apiBase}/rooms/ban`, {
                 method: "POST",
                 headers: this.getHeaders(),
                 body: JSON.stringify({ code, targetID })

@@ -1,5 +1,7 @@
-let serverSecure = true;
-let serverBase = "lc-relay.neolegacy.dev";
+//let serverSecure = true;
+//let serverBase = "lc-relay.neolegacy.dev";
+let serverSecure = false;
+let serverBase = "127.0.0.1:4252";
 let relayPort = 61000; // do not use 25565 as if someone has 2 clients open they cant start local world
 let hostRelayPort = 25565;
 

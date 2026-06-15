@@ -9,6 +9,8 @@ class VLANRelay {
     static connections = new Map();
     static localServer = null;
     static isHost = false;
+    static isHostReady = false;
+    static r = null;
 
     static async start({ isHost }) {
         this.isHost = isHost;
@@ -20,10 +22,16 @@ class VLANRelay {
         RelayAPI.on("relay_close", this.closeHandler);
 
         if (!!this.isHost) {
+            this.watchHostPort();
             this.openHandler = this.handleOpen.bind(this); // hosts only want connection when another player is actually trying to join
             RelayAPI.on("relay_open", this.openHandler);
         } else {
+            this.readyHandler = this.handleReady.bind(this);
+            RelayAPI.on("relay_ready", this.readyHandler);
+
             await this.startClient(); // clients created on room join
+
+            RelayAPI.getConnectionReady(); // if host already joined world, this solves that issue for the relay hint
         };
     };
 
@@ -108,6 +116,43 @@ class VLANRelay {
         return lce;
     };
 
+    static watchHostPort() {
+        if (this.portCheckInterval) clearInterval(this.portCheckInterval);
+        
+        this.portCheckInterval = setInterval(() => {
+            const client = new net.Socket();
+            
+            client.setTimeout(500);
+            client.on('connect', () => {
+                client.destroy();
+                if (!this.isHostReady) {
+                    this.isHostReady = true;
+                    if (this.r) this.r.render();
+                    
+                    RelayAPI.setConnectionReady(true);
+                };
+            });
+            client.on('timeout', () => client.destroy());
+            client.on('error', () => {
+                if (this.isHostReady) {
+                    this.isHostReady = false;
+                    if (this.r) this.r.render();
+
+                    RelayAPI.setConnectionReady(false);
+                };
+                client.destroy();
+            });
+            client.connect(hostRelayPort, "127.0.0.1");
+        }, 4000);
+    };
+
+    static handleReady(isReady) {
+        if (this.isHost) return;
+
+        this.isHostReady = isReady;
+        if (this.r) this.r.render();
+    };
+
     static handleOpen(targetID) {
         if (!this.isHost) return;
     
@@ -189,9 +234,16 @@ class VLANRelay {
         };
         this.connections.clear();
 
+        if (this.portCheckInterval) {
+            clearInterval(this.portCheckInterval);
+            this.portCheckInterval = null;
+        };
+        this.isHostReady = false;
+
         if (this.relayHandler) RelayAPI.off("relay_packet", this.relayHandler);
         if (this.openHandler) RelayAPI.off("relay_open", this.openHandler);
         if (this.closeHandler) RelayAPI.off("relay_close", this.closeHandler);
+        if (this.readyHandler) RelayAPI.off("relay_ready", this.readyHandler);
 
         this.relayHandler = null;
         this.openHandler = null;
